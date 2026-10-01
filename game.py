@@ -1,4 +1,5 @@
 import random
+from matplotlib.style import available
 import pygame
 
 WIDTH, HEIGHT = 800, 600
@@ -102,7 +103,8 @@ class Game:
             battery.alive, battery.ammo = True, AMMO_PER_BATTERY
 
     def nearest_battery(self, target):
-        return min(self.batteries, key=lambda b: b.pos.distance_squared_to(target))
+        available = [b for b in self.batteries if b.alive and b.ammo > 0]
+        return min(available, key=lambda b: b.pos.distance_squared_to(target))
 
     def launch(self, target):
         target = pygame.Vector2(target)
