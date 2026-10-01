@@ -10,9 +10,22 @@ AMMO_PER_BATTERY = 10
 
 def explosion_color(progress):
     """Return an (r, g, b) colour for an explosion (progress 0..1 of its life), or None for the default."""
-    pass
+    progress = max(0.0, min(1.0, progress))
 
+    if progress < 0.5:
+        # Fade from orange toward white-hot at the midpoint.
+        t = progress / 0.5
+        r = 255
+        g = int(200 + 55 * t)
+        b = int(60 + 195 * t)
+    else:
+        # Fade from white-hot toward red as the explosion disappears.
+        t = (progress - 0.5) / 0.5
+        r = 255
+        g = int(255 * (1 - t))
+        b = int(255 * (1 - t))
 
+    return (r, g, b)
 def on_city_destroyed(city):
     """Called when a city is hit; add screen shake, sounds, or a game-over warning here."""
     pass
