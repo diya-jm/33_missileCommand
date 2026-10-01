@@ -6,6 +6,8 @@ WIDTH, HEIGHT = 800, 600
 GROUND_Y = HEIGHT - 40
 INTERCEPTOR_SPEED, EXPLOSION_MAX, EXPLOSION_TIME = 420, 45, 1.2
 AMMO_PER_BATTERY = 10
+CITY_WARNING = ""
+CITY_WARNING_TIMER = 0.0
 
 
 def explosion_color(progress):
@@ -28,8 +30,10 @@ def explosion_color(progress):
     return (r, g, b)
 def on_city_destroyed(city):
     """Called when a city is hit; add screen shake, sounds, or a game-over warning here."""
-    pass
+    global CITY_WARNING, CITY_WARNING_TIMER
 
+    CITY_WARNING = "CITY DESTROYED!"
+    CITY_WARNING_TIMER = 1.5
 
 def city_repair_threshold():
     """Return a score value at which a destroyed city is rebuilt, or None to disable city repair."""
@@ -134,6 +138,11 @@ class Game:
             self.missiles.append(Missile(random.choice(targets), 45 + self.wave * 6))
 
     def update(self, dt):
+        global CITY_WARNING_TIMER
+
+        if CITY_WARNING_TIMER > 0:
+            CITY_WARNING_TIMER = max(0, CITY_WARNING_TIMER - dt)
+
         if self.state != "play":
             return
         threshold = city_repair_threshold()
@@ -206,6 +215,9 @@ class Game:
             pygame.draw.circle(screen, color, explosion.pos, max(1, int(explosion.radius)))
         hud = self.font.render(f"Score {self.score}   Wave {self.wave}   Click to fire   R = reset", True, (240, 240, 240))
         screen.blit(hud, (10, 8))
+        if CITY_WARNING_TIMER > 0:
+            warning = self.font.render(CITY_WARNING, True, (255, 80, 80))
+            screen.blit(warning, warning.get_rect(center=(WIDTH // 2, 40)))
         if self.state == "lose":
             label = self.font.render("ALL CITIES LOST - Press R", True, (255, 255, 120))
             screen.blit(label, label.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
